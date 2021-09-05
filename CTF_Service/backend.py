@@ -127,11 +127,15 @@ def auth():
 def register():
     if request.method == 'POST':
         if request.form.get('password') == request.form.get('cpassword') and request.form.get('cpassword') != '':
-            db_add_user(request.form.get('username'), request.form.get('password'))
-            login(request.form.get('username'), request.form.get('password'))
-            return redirect(url_for('index'))
+            if db_add_user(request.form.get('username'), request.form.get('password')) != 'Duplicate':
+                login(request.form.get('username'), request.form.get('password'))
+                return redirect(url_for('index'))
+            else:
+                return render_template('register.html', err='This nickname already taken')
+        else:
+            return render_template('register.html', err='Passwords are not equal')
     else:
-        return render_template('register.html')
+        return render_template('register.html', err=None)
 
 
 if __name__ == '__main__':
