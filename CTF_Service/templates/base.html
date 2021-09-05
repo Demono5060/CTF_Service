@@ -23,15 +23,13 @@
       </a>
 
       <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
-        <a class="me-3 py-2 text-dark text-decoration-none" href="#">Pricing</a>
-        <a class="me-3 py-2 btn btn-outline-primary">Sign up</a>
+        <a class="me-3 py-2 text-dark text-decoration-none" href="/">Pricing</a>
+        <a class="me-3 py-2 text-dark text-decoration-none" href="/about">About</a>
+        <a class="me-3 py-2 btn btn-outline-primary" href="/register">Sign up</a>
+        <a class="me-3 py-2 btn btn-outline-primary" href="/auth">Sign in</a>
       </nav>
     </div>
-
-    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-      <h1 class="display-4 fw-normal">Pricing</h1>
-      <p class="fs-5 text-muted">Quickly build an effective pricing table for your potential customers with this Bootstrap example. It’s built with default Bootstrap components and utilities with little customization.</p>
-    </div>
+    {% block special_header%}{%endblock%}
   </header>
 
   {% block body %}{% endblock %}
@@ -45,10 +43,5 @@
     </div>
   </footer>
 </div>
-
-
-
-
-
 </body>
 </html>
