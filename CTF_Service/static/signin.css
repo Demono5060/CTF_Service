@@ -26,7 +26,7 @@ body {
   z-index: 2;
 }
 
-.form-sign input[type="email"] {
+.form-sign input[type="username"] {
   margin-bottom: -1px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
