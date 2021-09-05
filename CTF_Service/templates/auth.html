@@ -22,5 +22,8 @@
         <input type="checkbox" value="remember-me"> Remember me
       </label>
     </div>
+{%if err%}
+    <h1 class="h3 mb-3 fw-normal fs-5" style="color: red;">Wrong login or password</h1>
+{%endif%}
     <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
 {%endblock%}
