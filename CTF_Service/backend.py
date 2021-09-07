@@ -112,9 +112,13 @@ def db_get_all_users():
 def login(username, password):
     user = db_get_user(username, password)
     if not user:
-        return 'Incorrect data'
+        return render_template('auth.html', err="Err")
     else:
-        return user
+        user = list(user[0])
+        session['username'] = user[1]
+        session['privilege'] = user[3]
+        session['money'] = user[4]
+        return redirect(url_for('index'))
 
 
 @app.route('/')
@@ -130,13 +134,8 @@ def about():
 @app.route('/auth', methods=['GET', 'POST'])
 def auth():
     if request.method == 'POST':
-        res = list(login(request.form.get('username'), request.form.get('password'))[0])
-        if res == 'Incorrect data':
-            return render_template('auth.html', err="Err")
-        else:
-            session['username'] = res[1]
-            session['privilege'] = res[3]
-            return redirect(url_for('index'))
+        login(request.form.get('username'), request.form.get('password'))
+        return redirect(url_for('index'))
     else:
         return render_template('auth.html', err=None)
 
@@ -158,7 +157,16 @@ def register():
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    return render_template('admin.html', users = db_get_all_users())
+    return render_template('admin.html', users=db_get_all_users())
+
+
+@app.route('/logout')
+def logout():
+    session.pop('username')
+    session.pop('privilege')
+    session.pop('money')
+    return redirect(url_for('index'))
+
 
 if __name__ == '__main__':
     db_create()
