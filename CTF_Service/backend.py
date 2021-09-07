@@ -91,6 +91,24 @@ def db_get_user(username, password):
         print(e)
 
 
+def db_get_all_users():
+    try:
+        with connect(
+                host=sql_conf.get('host'),
+                user=sql_conf.get('user'),
+                password=sql_conf.get('password'),
+                database=sql_conf.get('database')
+        )as connection:
+            find = """
+                SELECT * FROM shop
+                """
+            with connection.cursor() as cursor:
+                cursor.execute(find)
+                return cursor.fetchall()
+    except Error as e:
+        print(e)
+
+
 def login(username, password):
     user = db_get_user(username, password)
     if not user:
@@ -137,6 +155,10 @@ def register():
     else:
         return render_template('register.html', err=None)
 
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    return render_template('admin.html', users = db_get_all_users())
 
 if __name__ == '__main__':
     db_create()
