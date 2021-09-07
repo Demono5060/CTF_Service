@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>Admin panel</title>
+{% endblock %}
+
+{% block body %}
+{%if session.get('privilege') == 1%}
+<div class="container">
+    <h1>Admin panel</h1>
+<div class="row row-cols-1 row-cols-md-3 gx-4">
+    <div class="col-md-1 themed-grid-col">id</div>
+    <div class="col-md-3 themed-grid-col">username</div>
+    <div class="col-md-3 themed-grid-col">password</div>
+    <div class="col-md-2 themed-grid-col">privilege</div>
+    <div class="col-md-3 themed-grid-col">money</div>
+</div>
+{%for id, username, password, privilege, money in users %}
+            <div class="row row-cols-1 row-cols-md-3 gx-4">
+                <div class="col-md-1 themed-grid-col">{{id}}</div>
+                <div class="col-md-3 themed-grid-col">{{username}}</div>
+                <div class="col-md-3 themed-grid-col">{{password}}</div>
+                <div class="col-md-2 themed-grid-col">{{privilege}}</div>
+                <div class="col-md-3 themed-grid-col">{{money}}</div>
+            </div>
+{% endfor %}
+</div>
+{%endif%}
+{% endblock %}
