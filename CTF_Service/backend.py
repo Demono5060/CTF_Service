@@ -199,4 +199,4 @@ def logout():
 if __name__ == '__main__':
     db_create()
     db_table_create()
-    app.run(debug=True, port='777')
+    app.run(debug=True, host="0.0.0.0", port='777')
