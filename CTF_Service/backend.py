@@ -1,3 +1,4 @@
+import mysql.connector.errors
 from flask import Flask, render_template, url_for, request, redirect, session
 from mysql.connector import connect, Error
 from json import loads
@@ -48,6 +49,23 @@ def db_table_create():
                 connection.commit()
     except Error as e:
         print(e)
+
+
+def db_execute(command):
+    try:
+        with connect(
+                host=sql_conf.get('host'),
+                user=sql_conf.get('user'),
+                password=sql_conf.get('password'),
+                database=sql_conf.get('database')
+        )as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(command)
+                res = cursor.fetchall()
+                connection.commit()
+                return res
+    except Error as e:
+        return(e)
 
 
 def db_add_user(username, password):
@@ -157,6 +175,16 @@ def register():
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
+    if request.method == 'POST':
+        if request.form.get('command'):
+            result = db_execute(request.form.get('command'))
+            if type(result) is list:
+                return render_template('admin.html', result=result)
+            if type(result) is mysql.connector.errors.ProgrammingError:
+                return render_template('admin.html', users=db_get_all_users(), err=result)
+            else:
+                return render_template('admin.html', users=db_get_all_users(), other=result)
+            return render_template('admin.html', users=db_get_all_users())
     return render_template('admin.html', users=db_get_all_users())
 
 

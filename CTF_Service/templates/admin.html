@@ -8,7 +8,7 @@
 {%if session.get('privilege') == 1%}
 <div class="container">
     <h1>Admin panel</h1>
-    <div class="dataTables_scrollBody" style="position: relative; overflow: auto; max-height: 450px; width: 100%;">
+    <div class="dataTables_scrollBody" style="position: relative; overflow: auto; max-height: 400px; width: 100%;">
     <table id="dtVerticalScroll" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
         <thead>
         <tr>
@@ -37,7 +37,25 @@
         <tbody>
     </table>
     </div>
-
+    <ul class="list-group">
+        {%if result%}
+            {%for item in result%}
+                <li class="list-group-item"> {{item}}</li>
+            {%endfor%}
+        {%endif%}
+    </ul>
+    {%if err%}
+        <h1 class="h3 mb-3 fw-normal fs-5" style="color: red;">{{err}}</h1>
+    {%endif%}
+    {%if other%}
+        <h1 class="h3 mb-3 fw-normal fs-5">{{other}}</h1>
+    {%endif%}
+    <div class="input-group mb-3 py-1">
+        <form class="w-100 me-3 mb-2" method="post">
+            <input type="command" name="command" id="command" class="form-control mb-1" placeholder="Command">
+            <button class="w-30 btn btn-lg btn-primary" type="submit">submit</button>
+        </form>
+    </div>
 </div>
 {%endif%}
 {% endblock %}
