@@ -79,10 +79,10 @@ def db_add_user(username, password):
             create_account = """
                 INSERT INTO shop (login, pass, privilege, money)
                 VALUES
-                ("{}", '{}', 0, 0)
-                """.format(username, password)
+                (%(username)s, %(password)s, 0, 0)
+                """ #WARNING, MAY BE UNSAFETY, NEED TESTS!!!
             with connection.cursor() as cursor:
-                cursor.execute(create_account)
+                cursor.execute(create_account, {'username': username, 'password': password})
                 connection.commit()
     except Error as e:
         if e.errno == 1062:
@@ -100,10 +100,10 @@ def db_get_user(username, password):
                 database=sql_conf.get('database')
         )as connection:
             find = """
-                SELECT * FROM shop WHERE (login='{}' AND pass='{}')
-                """.format(username, password)
+                SELECT * FROM shop WHERE (login=%(username)s AND pass=%(password)s)
+                """#WARNING, MAY BE UNSAFETY, NEED TESTS!!!
             with connection.cursor() as cursor:
-                cursor.execute(find)
+                cursor.execute(find, {'username': username, 'password': password})
                 return cursor.fetchall()
     except Error as e:
         print(e)
