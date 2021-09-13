@@ -5,85 +5,67 @@ from json import loads
 app = Flask(__name__)
 app.secret_key = '\x10Y\xde\xb6|R\xd4,\xb8j\xd76\x1cWD\x08\x19P\xcb;{\xb8\x1d\n'
 sql_conf = loads(open('SQLConf.json', 'r').read())
+shop_db = connect(
+                host=sql_conf.get('host'),
+                user=sql_conf.get('user'),
+                password=sql_conf.get('password'),
+                database='shop')
 
 
 def db_create():
     try:
-        with connect(
-                host=sql_conf.get('host'),
-                user=sql_conf.get('user'),
-                password=sql_conf.get('password')
-        ) as connection:
-            create_db_query = "CREATE DATABASE shop"
-            with connection.cursor() as cursor:
-                cursor.execute(create_db_query)
+        create_db_query = "CREATE DATABASE shop"
+        with shop_db.cursor() as cursor:
+            cursor.execute(create_db_query)
     except Error as e:
         print(e)
 
 
 def db_table_create():
     try:
-        with connect(
-                host=sql_conf.get('host'),
-                user=sql_conf.get('user'),
-                password=sql_conf.get('password'),
-                database=sql_conf.get('database')
-        ) as connection:
-            create_table_shop = """
-                    CREATE TABLE shop(
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    login VARCHAR(16) UNIQUE,
-                    pass VARCHAR(32),
-                    privilege INT,
-                    money INT
-                    )
-                    """
-            create_admin_account = """
-                    INSERT INTO shop (login, pass, privilege, money)
-                    VALUES
-                    ("admin", 'admin', 1, 30000)
-                    """
-            with connection.cursor() as cursor:
-                cursor.execute(create_table_shop)
-                cursor.execute(create_admin_account)
-                connection.commit()
+        create_table_shop = """
+            CREATE TABLE shop(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            login VARCHAR(16) UNIQUE,
+            pass VARCHAR(32),
+            privilege INT,
+            money INT
+            )
+            """
+        create_admin_account = """
+            INSERT INTO shop (login, pass, privilege, money)
+            VALUES
+            ("admin", 'admin', 1, 30000)
+            """
+        with shop_db.cursor() as cursor:
+            cursor.execute(create_table_shop)
+            cursor.execute(create_admin_account)
+            shop_db.commit()
     except Error as e:
         print(e)
 
 
 def db_execute(command):
     try:
-        with connect(
-                host=sql_conf.get('host'),
-                user=sql_conf.get('user'),
-                password=sql_conf.get('password'),
-                database=sql_conf.get('database')
-        )as connection:
-            with connection.cursor() as cursor:
-                cursor.execute(command)
-                res = cursor.fetchall()
-                connection.commit()
-                return res
+        with shop_db.cursor() as cursor:
+            cursor.execute(command)
+            res = cursor.fetchall()
+            shop_db.commit()
+            return res
     except Error as e:
         return(e)
 
 
 def db_add_user(username, password):
     try:
-        with connect(
-                host=sql_conf.get('host'),
-                user=sql_conf.get('user'),
-                password=sql_conf.get('password'),
-                database=sql_conf.get('database')
-        )as connection:
-            create_account = """
-                INSERT INTO shop (login, pass, privilege, money)
-                VALUES
-                (%(username)s, %(password)s, 0, 0)
-                """ #WARNING, MAY BE UNSAFETY, NEED TESTS!!!
-            with connection.cursor() as cursor:
-                cursor.execute(create_account, {'username': username, 'password': password})
-                connection.commit()
+        create_account = """
+            INSERT INTO shop (login, pass, privilege, money)
+            VALUES
+            (%(username)s, %(password)s, 0, 0)
+            """ #WARNING, MAY BE UNSAFETY, NEED TESTS!!!
+        with shop_db.cursor() as cursor:
+            cursor.execute(create_account, {'username': username, 'password': password})
+            shop_db.commit()
     except Error as e:
         if e.errno == 1062:
             return 'Duplicate'
@@ -93,36 +75,24 @@ def db_add_user(username, password):
 
 def db_get_user(username, password):
     try:
-        with connect(
-                host=sql_conf.get('host'),
-                user=sql_conf.get('user'),
-                password=sql_conf.get('password'),
-                database=sql_conf.get('database')
-        )as connection:
-            find = """
-                SELECT * FROM shop WHERE (login=%(username)s AND pass=%(password)s)
-                """#WARNING, MAY BE UNSAFETY, NEED TESTS!!!
-            with connection.cursor() as cursor:
-                cursor.execute(find, {'username': username, 'password': password})
-                return cursor.fetchall()
+        find = """
+             SELECT * FROM shop WHERE (login=%(username)s AND pass=%(password)s)
+               """#WARNING, MAY BE UNSAFETY, NEED TESTS!!!
+        with shop_db.cursor() as cursor:
+            cursor.execute(find, {'username': username, 'password': password})
+            return cursor.fetchall()
     except Error as e:
         print(e)
 
 
 def db_get_all_users():
     try:
-        with connect(
-                host=sql_conf.get('host'),
-                user=sql_conf.get('user'),
-                password=sql_conf.get('password'),
-                database=sql_conf.get('database')
-        )as connection:
-            find = """
-                SELECT * FROM shop
-                """
-            with connection.cursor() as cursor:
-                cursor.execute(find)
-                return cursor.fetchall()
+        find = """
+            SELECT * FROM shop
+            """
+        with shop_db.cursor() as cursor:
+            cursor.execute(find)
+            return cursor.fetchall()
     except Error as e:
         print(e)
 
