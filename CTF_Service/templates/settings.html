@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>Profile settings</title>
+{% endblock %}
+
+{% block body %}
+<h1>Change password</h1>
+<form method="post">
+<input type="password" name="old_password" id="old_password" class="form-control mb-1" placeholder="Old password">
+<input type="password" name="new_password" id="new_password" class="form-control mb-1" placeholder="New password">
+<input type="password" name="confirm_password" id="confirm_password" class="form-control mb-1" placeholder="Confirm password">
+{%if err%}
+  <h1 class="h3 mb-3 fw-normal fs-5" style="color: red;">{{err}}</h1>
+{%endif%}
+  {%if result%}
+  <h1 class="h3 mb-3 fw-normal fs-5" style="color: green;">{{result}}</h1>
+{%endif%}
+<button class="w-30 btn btn-lg btn-primary" type="submit">submit</button>
+</form>
+{%endblock%}

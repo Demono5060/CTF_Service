@@ -47,10 +47,9 @@
           </a>
           <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1" >
             {%if session.get('privilege') == 1%}
-            <li><a class="dropdown-item" href="/admin">admin</a></li>
+            <li><a class="dropdown-item" href="/admin">Admin</a></li>
             {%endif%}
-            <li><a class="dropdown-item" href="#">Settings</a></li>
-            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><a class="dropdown-item" href="/settings">Settings</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="/logout">Sign out</a></li>
           </ul>

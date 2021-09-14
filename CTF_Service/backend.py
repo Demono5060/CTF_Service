@@ -2,8 +2,10 @@ import mysql.connector.errors
 from flask import Flask, render_template, url_for, request, redirect, session
 from mysql.connector import connect, Error
 from json import loads
+
 app = Flask(__name__)
 app.secret_key = '\x10Y\xde\xb6|R\xd4,\xb8j\xd76\x1cWD\x08\x19P\xcb;{\xb8\x1d\n'
+
 sql_conf = loads(open('SQLConf.json', 'r').read())
 shop_db = connect(
                 host=sql_conf.get('host'),
@@ -81,6 +83,20 @@ def db_get_user(username, password):
         with shop_db.cursor() as cursor:
             cursor.execute(find, {'username': username, 'password': password})
             return cursor.fetchall()
+    except Error as e:
+        print(e)
+
+
+def db_change_user_password(username, password):
+    try:
+        change = """
+        UPDATE shop
+        SET pass = %(password)s
+        WHERE login = %(username)s
+        """#WARNING, MAY BE UNSAFETY, NEED TESTS!!!
+        with shop_db.cursor() as cursor:
+            cursor.execute(change, {'username': username, 'password': password})
+            shop_db.commit()
     except Error as e:
         print(e)
 
@@ -166,7 +182,20 @@ def logout():
     return redirect(url_for('index'))
 
 
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    if request.method == 'POST':
+        if request.form.get('new_password') == request.form.get('confirm_password'):
+            if db_get_user(session.get('username'), request.form.get('old_password')):
+                db_change_user_password(session.get('username'), request.form.get('new_password'))
+                return render_template('settings.html', result='Ok')
+            else:
+                return render_template('settings.html', err='Old password is incorrect')
+        else:
+            return render_template('settings.html', err='Passwords are not equal')
+    else:
+        return render_template('settings.html')
+
+
 if __name__ == '__main__':
-    db_create()
-    db_table_create()
     app.run(debug=True, host="0.0.0.0", port='777')
