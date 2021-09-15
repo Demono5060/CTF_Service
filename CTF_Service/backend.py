@@ -7,11 +7,49 @@ app = Flask(__name__)
 app.secret_key = '\x10Y\xde\xb6|R\xd4,\xb8j\xd76\x1cWD\x08\x19P\xcb;{\xb8\x1d\n'
 
 sql_conf = loads(open('SQLConf.json', 'r').read())
-shop_db = connect(
+
+
+def shop_db_connect():
+    try:
+        connection = connect(
+            host=sql_conf.get('host'),
+            user=sql_conf.get('user'),
+            password=sql_conf.get('password'),
+            database='shop')
+        return connection
+    except Error as e:
+        if e.errno == 1049:
+            connection = connect(
                 host=sql_conf.get('host'),
                 user=sql_conf.get('user'),
-                password=sql_conf.get('password'),
-                database='shop')
+                password=sql_conf.get('password'))
+            with connection.cursor() as cursor:
+                cursor.execute('''
+                CREATE DATABASE shop;
+                ''')
+                connection.commit()
+                connection.database = 'shop'
+                cursor = connection.cursor()
+                cursor.execute('''
+                CREATE TABLE shop(
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                login VARCHAR(16) UNIQUE,
+                pass VARCHAR(32),
+                privilege INT,
+                money INT
+                );
+                ''')
+                connection.commit()
+                cursor.execute('''
+                INSERT INTO shop (login, pass, privilege, money)
+                VALUES
+                ("admin", 'admin', 1, 30000);
+                ''')
+                connection.commit()
+                return connection
+
+
+shop_db = shop_db_connect()
 
 
 def db_create():
@@ -55,7 +93,7 @@ def db_execute(command):
             shop_db.commit()
             return res
     except Error as e:
-        return(e)
+        return (e)
 
 
 def db_add_user(username, password):
@@ -64,7 +102,7 @@ def db_add_user(username, password):
             INSERT INTO shop (login, pass, privilege, money)
             VALUES
             (%(username)s, %(password)s, 0, 0)
-            """ #WARNING, MAY BE UNSAFETY, NEED TESTS!!!
+            """  # WARNING, MAY BE UNSAFETY, NEED TESTS!!!
         with shop_db.cursor() as cursor:
             cursor.execute(create_account, {'username': username, 'password': password})
             shop_db.commit()
@@ -79,7 +117,7 @@ def db_get_user(username, password):
     try:
         find = """
              SELECT * FROM shop WHERE (login=%(username)s AND pass=%(password)s)
-               """#WARNING, MAY BE UNSAFETY, NEED TESTS!!!
+               """  # WARNING, MAY BE UNSAFETY, NEED TESTS!!!
         with shop_db.cursor() as cursor:
             cursor.execute(find, {'username': username, 'password': password})
             return cursor.fetchall()
@@ -93,7 +131,7 @@ def db_change_user_password(username, password):
         UPDATE shop
         SET pass = %(password)s
         WHERE login = %(username)s
-        """#WARNING, MAY BE UNSAFETY, NEED TESTS!!!
+        """  # WARNING, MAY BE UNSAFETY, NEED TESTS!!!
         with shop_db.cursor() as cursor:
             cursor.execute(change, {'username': username, 'password': password})
             shop_db.commit()
@@ -162,7 +200,7 @@ def register():
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     if request.method == 'POST':
-        if request.form.get('command'):
+        if request.form.get('command') and session.get('privilege') == 1:
             result = db_execute(request.form.get('command'))
             if type(result) is list:
                 return render_template('admin.html', result=result)
@@ -170,7 +208,6 @@ def admin():
                 return render_template('admin.html', users=db_get_all_users(), err=result)
             else:
                 return render_template('admin.html', users=db_get_all_users(), other=result)
-            return render_template('admin.html', users=db_get_all_users())
     return render_template('admin.html', users=db_get_all_users())
 
 
@@ -185,7 +222,8 @@ def logout():
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
     if request.method == 'POST':
-        if request.form.get('new_password') == request.form.get('confirm_password'):
+        if request.form.get('new_password') == request.form.get('confirm_password') and request.form.get(
+                'new_password'):
             if db_get_user(session.get('username'), request.form.get('old_password')):
                 db_change_user_password(session.get('username'), request.form.get('new_password'))
                 return render_template('settings.html', result='Ok')
@@ -199,3 +237,4 @@ def settings():
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port='777')
+    shop_db.disconnect()
