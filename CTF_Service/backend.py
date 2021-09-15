@@ -23,29 +23,19 @@ def shop_db_connect():
                 host=sql_conf.get('host'),
                 user=sql_conf.get('user'),
                 password=sql_conf.get('password'))
+            connection.autocommit = True
             with connection.cursor() as cursor:
-                cursor.execute('''
-                CREATE DATABASE shop;
-                ''')
-                connection.commit()
-                connection.database = 'shop'
-                cursor = connection.cursor()
-                cursor.execute('''
-                CREATE TABLE shop(
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                login VARCHAR(16) UNIQUE,
-                pass VARCHAR(32),
-                privilege INT,
-                money INT
-                );
-                ''')
-                connection.commit()
-                cursor.execute('''
-                INSERT INTO shop (login, pass, privilege, money)
-                VALUES
-                ("admin", 'admin', 1, 30000);
-                ''')
-                connection.commit()
+                command = (
+                    '''
+                    CREATE DATABASE shop;
+                    USE shop;
+                    CREATE TABLE shop(id INT AUTO_INCREMENT PRIMARY KEY,login VARCHAR(16) UNIQUE,pass VARCHAR(32),
+                    privilege INT,money INT);
+                    INSERT INTO shop (login, pass, privilege, money) VALUES ('admin', 'admin', 1, 30000);
+                    '''
+                    )
+                iterator = cursor.execute(command, multi=True)
+                iterator.send(None)
                 return connection
 
 
