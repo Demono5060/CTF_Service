@@ -34,8 +34,8 @@ def shop_db_connect():
                     INSERT INTO shop (login, pass, privilege, money) VALUES ('admin', 'admin', 1, 30000);
                     '''
                     )
-                iterator = cursor.execute(command, multi=True)
-                iterator.send(None)
+                cursor.execute(command, multi=True).send(None)
+                connection.autocommit = False
                 return connection
 
 
