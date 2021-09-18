@@ -8,6 +8,9 @@
 <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
       <h1 class="display-4 fw-normal">Pricing</h1>
       <p class="fs-5 text-muted">Quickly build an effective pricing table for your potential customers with this Bootstrap example. It’s built with default Bootstrap components and utilities with little customization.</p>
+      {%if err%}
+        <h1 class="h3 mb-3 fw-normal fs-5" style="color: red;">{{err}}</h1>
+      {%endif%}
 </div>
 {%endblock%}
 
@@ -27,7 +30,9 @@
               <li>Email support</li>
               <li>Help center access</li>
             </ul>
-            <button type="button" class="w-100 btn btn-lg btn-outline-primary">Sign up for free</button>
+            <form method="post">
+            <button type="submit" name="price" value="1000" class="w-100 btn btn-lg btn-outline-primary">Sign up for free</button>
+            </form>
           </div>
         </div>
       </div>

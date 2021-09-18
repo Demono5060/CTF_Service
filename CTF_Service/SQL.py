@@ -77,6 +77,18 @@ def db_get_user(username, password):
         print(e)
 
 
+def db_get_money(username):
+    try:
+        find = """
+             SELECT * FROM users WHERE login=%(username)s
+               """  # WARNING, MAY BE UNSAFETY, NEED TESTS!!!
+        with shop_db.cursor() as cursor:
+            cursor.execute(find, {'username': username})
+            return list(cursor.fetchall()[0])
+    except Error as e:
+        print(e)
+
+
 def db_change_user_password(username, password):
     try:
         change = """
@@ -86,6 +98,20 @@ def db_change_user_password(username, password):
         """  # WARNING, MAY BE UNSAFETY, NEED TESTS!!!
         with shop_db.cursor() as cursor:
             cursor.execute(change, {'username': username, 'password': password})
+            shop_db.commit()
+    except Error as e:
+        print(e)
+
+
+def db_change_user_money(username, money):
+    try:
+        change = """
+        UPDATE users
+        SET money = %(money)s
+        WHERE login = %(username)s
+        """  # WARNING, MAY BE UNSAFETY, NEED TESTS!!!
+        with shop_db.cursor() as cursor:
+            cursor.execute(change, {'username': username, 'money': money})
             shop_db.commit()
     except Error as e:
         print(e)

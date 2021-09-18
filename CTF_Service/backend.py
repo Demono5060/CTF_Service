@@ -6,9 +6,18 @@ app.secret_key = '\x10Y\xde\xb6|R\xd4,\xb8j\xd76\x1cWD\x08\x19P\xcb;{\xb8\x1d\n'
 resp = Response()
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    if request.method == 'POST':
+        user_money = db_get_money(session.get('username'))[4]
+        if user_money >= int(request.form.get('price')):
+            db_change_user_money(session.get('username'), user_money - int(request.form.get('price')))
+            session['money'] = user_money-int(request.form.get('price'))
+            return render_template('index.html')
+        else:
+            return render_template('index.html', err="This item is too expensive for you!")
+    else:
+        return render_template('index.html')
 
 
 @app.route('/about')
