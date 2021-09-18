@@ -84,7 +84,7 @@ def db_get_money(username):
                """  # WARNING, MAY BE UNSAFETY, NEED TESTS!!!
         with shop_db.cursor() as cursor:
             cursor.execute(find, {'username': username})
-            return list(cursor.fetchall()[0])
+            return list(cursor.fetchall()[0])[4]
     except Error as e:
         print(e)
 

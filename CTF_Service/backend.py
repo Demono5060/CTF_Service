@@ -9,7 +9,7 @@ resp = Response()
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        user_money = db_get_money(session.get('username'))[4]
+        user_money = db_get_money(session.get('username'))
         if user_money >= int(request.form.get('price')):
             db_change_user_money(session.get('username'), user_money - int(request.form.get('price')))
             session['money'] = user_money-int(request.form.get('price'))
