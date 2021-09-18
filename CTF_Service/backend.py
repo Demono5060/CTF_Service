@@ -1,8 +1,9 @@
 import mysql.connector.errors
-from flask import Flask, request
+from flask import Flask, request, Response
 from helpers import *
 app = Flask(__name__)
 app.secret_key = '\x10Y\xde\xb6|R\xd4,\xb8j\xd76\x1cWD\x08\x19P\xcb;{\xb8\x1d\n'
+resp = Response()
 
 
 @app.route('/')
@@ -18,7 +19,7 @@ def about():
 @app.route('/auth', methods=['GET', 'POST'])
 def auth():
     if request.method == 'POST':
-        login(request.form.get('username'), request.form.get('password'))
+        login(request.form.get('username'), request.form.get('password'), request.form.get('remember'))
         return redirect(url_for('index'))
     else:
         return render_template('auth.html', err=None)
@@ -29,7 +30,7 @@ def register():
     if request.method == 'POST':
         if request.form.get('password') == request.form.get('cpassword') and request.form.get('cpassword') != '':
             if db_add_user(request.form.get('username'), request.form.get('password')) != 'Duplicate':
-                login(request.form.get('username'), request.form.get('password'))
+                login(request.form.get('username'), request.form.get('password'), request.form.get('remember'))
                 return redirect(url_for('index'))
             else:
                 return render_template('register.html', err='This nickname already taken')
@@ -55,9 +56,7 @@ def admin():
 
 @app.route('/logout')
 def logout():
-    session.pop('username')
-    session.pop('privilege')
-    session.pop('money')
+    session.clear()
     return redirect(url_for('index'))
 
 

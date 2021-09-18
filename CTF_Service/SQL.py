@@ -24,9 +24,9 @@ def shop_db_connect():
                     '''
                     CREATE DATABASE shop;
                     USE shop;
-                    CREATE TABLE shop(id INT AUTO_INCREMENT PRIMARY KEY,login VARCHAR(16) UNIQUE,pass VARCHAR(32),
+                    CREATE TABLE users(id INT AUTO_INCREMENT PRIMARY KEY,login VARCHAR(16) UNIQUE,pass VARCHAR(32),
                     privilege INT,money INT);
-                    INSERT INTO shop (login, pass, privilege, money) VALUES ('admin', 'admin', 1, 30000);
+                    INSERT INTO users (login, pass, privilege, money) VALUES ('admin', 'admin', 1, 30000);
                     '''
                     )
                 cursor.execute(command, multi=True).send(None)
@@ -45,13 +45,13 @@ def db_execute(command):
             shop_db.commit()
             return res
     except Error as e:
-        return (e)
+        return e
 
 
 def db_add_user(username, password):
     try:
         create_account = """
-            INSERT INTO shop (login, pass, privilege, money)
+            INSERT INTO users (login, pass, privilege, money)
             VALUES
             (%(username)s, %(password)s, 0, 0)
             """  # WARNING, MAY BE UNSAFETY, NEED TESTS!!!
@@ -68,7 +68,7 @@ def db_add_user(username, password):
 def db_get_user(username, password):
     try:
         find = """
-             SELECT * FROM shop WHERE (login=%(username)s AND pass=%(password)s)
+             SELECT * FROM users WHERE (login=%(username)s AND pass=%(password)s)
                """  # WARNING, MAY BE UNSAFETY, NEED TESTS!!!
         with shop_db.cursor() as cursor:
             cursor.execute(find, {'username': username, 'password': password})
@@ -80,7 +80,7 @@ def db_get_user(username, password):
 def db_change_user_password(username, password):
     try:
         change = """
-        UPDATE shop
+        UPDATE users
         SET pass = %(password)s
         WHERE login = %(username)s
         """  # WARNING, MAY BE UNSAFETY, NEED TESTS!!!
@@ -94,7 +94,7 @@ def db_change_user_password(username, password):
 def db_get_all_users():
     try:
         find = """
-            SELECT * FROM shop
+            SELECT * FROM users
             """
         with shop_db.cursor() as cursor:
             cursor.execute(find)
