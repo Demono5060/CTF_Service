@@ -1,6 +1,7 @@
 import mysql.connector.errors
-from flask import Flask, request, Response
-from helpers import *
+from flask import Flask, request, Response, session, render_template, redirect, url_for
+import SQL
+from helpers import login
 app = Flask(__name__)
 app.secret_key = '\x10Y\xde\xb6|R\xd4,\xb8j\xd76\x1cWD\x08\x19P\xcb;{\xb8\x1d\n'
 resp = Response()
@@ -9,9 +10,9 @@ resp = Response()
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        user_money = db_get_money(session.get('username'))
+        user_money = SQL.db_get_money(session.get('username'))
         if user_money >= int(request.form.get('price')):
-            db_change_user_money(session.get('username'), user_money - int(request.form.get('price')))
+            SQL.db_change_user_money(session.get('username'), user_money - int(request.form.get('price')))
             session['money'] = user_money-int(request.form.get('price'))
             return render_template('index.html')
         else:
@@ -38,7 +39,7 @@ def auth():
 def register():
     if request.method == 'POST':
         if request.form.get('password') == request.form.get('cpassword') and request.form.get('cpassword') != '':
-            if db_add_user(request.form.get('username'), request.form.get('password')) != 'Duplicate':
+            if SQL.db_add_user(request.form.get('username'), request.form.get('password')) != 'Duplicate':
                 login(request.form.get('username'), request.form.get('password'), request.form.get('remember'))
                 return redirect(url_for('index'))
             else:
@@ -53,14 +54,14 @@ def register():
 def admin():
     if request.method == 'POST':
         if request.form.get('command') and session.get('privilege') == 1:
-            result = db_execute(request.form.get('command'))
+            result = SQL.db_execute(request.form.get('command'))
             if type(result) is list:
                 return render_template('admin.html', result=result)
             if type(result) is mysql.connector.errors.ProgrammingError:
-                return render_template('admin.html', users=db_get_all_users(), err=result)
+                return render_template('admin.html', users=SQL.db_get_all_users(), err=result)
             else:
-                return render_template('admin.html', users=db_get_all_users(), other=result)
-    return render_template('admin.html', users=db_get_all_users())
+                return render_template('admin.html', users=SQL.db_get_all_users(), other=result)
+    return render_template('admin.html', users=SQL.db_get_all_users())
 
 
 @app.route('/logout')
@@ -74,8 +75,8 @@ def settings():
     if request.method == 'POST':
         if request.form.get('new_password') == request.form.get('confirm_password') and request.form.get(
                 'new_password'):
-            if db_get_user(session.get('username'), request.form.get('old_password')):
-                db_change_user_password(session.get('username'), request.form.get('new_password'))
+            if SQL.db_get_user(session.get('username'), request.form.get('old_password')):
+                SQL.db_change_user_password(session.get('username'), request.form.get('new_password'))
                 return render_template('settings.html', result='Ok')
             else:
                 return render_template('settings.html', err='Old password is incorrect')
@@ -85,6 +86,22 @@ def settings():
         return render_template('settings.html')
 
 
+@app.route('/funds', methods=['GET', 'POST'])
+def funds():
+    if request.method == 'POST':
+        fund_code = request.form.get('fund')
+        if SQL.db_find_key(fund_code):
+            money = list(SQL.db_find_key(fund_code)[0])[2]
+            SQL.db_remove_key(fund_code)
+            SQL.db_change_user_money(session.get('username'), int(session.get('money')) + int(money))
+            SQL.db_add_key(money)
+            session['money'] = int(session.get('money')) + int(money)
+            return render_template('funds.html', res='Added {}'.format(money))
+        else:
+            return render_template('funds.html', err='Unknown code')
+    return render_template('funds.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port='777')
-    shop_db.disconnect()
+    SQL.shop_db.disconnect()

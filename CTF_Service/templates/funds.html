@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>Add funds to you account</title>
+{% endblock %}
+
+{%block special_header%}
+<div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+      <h1 class="display-4 fw-normal">Funds</h1>
+      {%if err%}
+        <h1 class="h3 mb-3 fw-normal fs-5" style="color: red;">{{err}}</h1>
+      {%endif%}
+    {%if res%}
+    <h1 class="h3 mb-3 fw-normal fs-5" style="color: green;">{{res}}</h1>
+    {%endif%}
+</div>
+{%endblock%}
+
+{%block body%}
+<div class="input-group mb-3 py-1">
+        <form class="w-100 me-3 mb-2" method="post">
+            <input type="fund" name="fund" id="" class="form-control mb-1" placeholder="Enter funds key">
+            <button class="w-30 btn btn-lg btn-primary" type="submit">submit</button>
+        </form>
+</div>
+{%endblock%}

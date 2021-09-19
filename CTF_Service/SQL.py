@@ -1,6 +1,9 @@
 import mysql.connector.errors
 from mysql.connector import connect, Error
 from json import loads
+from os import urandom
+from hashlib import md5
+
 sql_conf = loads(open('SQLConf.json', 'r').read())
 
 
@@ -27,9 +30,19 @@ def shop_db_connect():
                     CREATE TABLE users(id INT AUTO_INCREMENT PRIMARY KEY,login VARCHAR(16) UNIQUE,pass VARCHAR(32),
                     privilege INT,money INT);
                     INSERT INTO users (login, pass, privilege, money) VALUES ('admin', 'admin', 1, 30000);
+                    USE shop;
+                    CREATE TABLE codes (id INT AUTO_INCREMENT PRIMARY KEY, code VARCHAR(32), value INT);
                     '''
-                    )
+                )
                 cursor.execute(command, multi=True).send(None)
+                insert_codes = 'INSERT INTO codes(code, value) VALUES '
+                values = [10, 100, 150, 300, 500, 1000]
+                keys = []
+                for value in values:
+                    for i in range(0, 10):
+                        insert_codes += str((md5(urandom(32)).hexdigest(), value)) + ','
+                cursor.execute(insert_codes[:-1], multi=True).send(None)
+                #cursor.executemany('INSERT INTO codes(code, value) VALUES (%s, %s)', keys)
                 connection.autocommit = False
                 return connection
 
@@ -125,5 +138,42 @@ def db_get_all_users():
         with shop_db.cursor() as cursor:
             cursor.execute(find)
             return cursor.fetchall()
+    except Error as e:
+        print(e)
+
+
+def db_add_key(value):
+    try:
+        add_key = """
+        INSERT INTO codes (code, value) VALUES (%(key)s, %(value)s);
+        """
+        with shop_db.cursor() as cursor:
+            cursor.execute(add_key, {'key': md5(urandom(32)).hexdigest(), 'value': value})
+            shop_db.commit()
+    except Error as e:
+        print(e)
+
+
+def db_find_key(key):
+    try:
+        find_key = """
+        SELECT * FROM codes WHERE code=%(key)s
+        """
+        with shop_db.cursor() as cursor:
+            cursor.execute(find_key, {'key': key})
+            res = cursor.fetchall()
+            return res
+    except Error as e:
+        print(e)
+
+
+def db_remove_key(key):
+    try:
+        remove = """
+        DELETE FROM codes WHERE code=%(key)s
+        """
+        with shop_db.cursor() as cursor:
+            cursor.execute(remove, {'key': key})
+            shop_db.commit()
     except Error as e:
         print(e)

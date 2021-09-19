@@ -1,9 +1,10 @@
-from SQL import *
+import SQL
 from flask import session, render_template, redirect, url_for
+from os import urandom
 
 
 def login(username, password, remember):
-    user = db_get_user(username, password)
+    user = SQL.db_get_user(username, password)
     if not user:
         return render_template('auth.html', err="Err")
     else:
@@ -14,3 +15,7 @@ def login(username, password, remember):
         session['privilege'] = user[3]
         session['money'] = user[4]
         return redirect(url_for('index'))
+
+
+def gen_new_key(value):
+    SQL.db_add_key(urandom(32), value)
