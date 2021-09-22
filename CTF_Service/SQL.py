@@ -1,5 +1,6 @@
 import mysql.connector.errors
 from mysql.connector import connect, Error
+from flask import url_for
 from json import loads
 from os import urandom
 from hashlib import md5
@@ -32,18 +33,20 @@ def shop_db_connect():
                     INSERT INTO users (login, pass, privilege, money) VALUES ('admin', 'admin', 1, 30000);
                     USE shop;
                     CREATE TABLE codes (id INT AUTO_INCREMENT PRIMARY KEY, code VARCHAR(32), value INT);
+                    CREATE TABLE products (id INT AUTO_INCREMENT PRIMARY KEY, description VARCHAR(32), img VARCHAR(64),
+                     value INT);
+                    INSERT INTO products (description, img, value) VALUES ('Neo', 'static/neo.jpg', 310);
+                    INSERT INTO products (description, img, value) VALUES ('Triniti', 'static/triniti.jpg', 270);
+                    INSERT INTO products (description, img, value) VALUES ('Morpheus', 'static/morpheus.jpg', 300);
                     '''
                 )
                 cursor.execute(command, multi=True).send(None)
                 insert_codes = 'INSERT INTO codes(code, value) VALUES '
                 values = [10, 100, 150, 300, 500, 1000]
-                keys = []
                 for value in values:
                     for i in range(0, 10):
                         insert_codes += str((md5(urandom(32)).hexdigest(), value)) + ','
                 cursor.execute(insert_codes[:-1], multi=True).send(None)
-                #cursor.executemany('INSERT INTO codes(code, value) VALUES (%s, %s)', keys)
-                connection.autocommit = False
                 return connection
 
 
@@ -86,6 +89,18 @@ def db_get_user(username, password):
         with shop_db.cursor() as cursor:
             cursor.execute(find, {'username': username, 'password': password})
             return cursor.fetchall()
+    except Error as e:
+        print(e)
+
+
+def db_get_product(identification_digit):
+    try:
+        find = """
+        SELECT * FROM products WHERE (id=%(id)s)
+        """
+        with shop_db.cursor() as cursor:
+            cursor.execute(find, {'id': identification_digit})
+            return cursor.fetchone()
     except Error as e:
         print(e)
 

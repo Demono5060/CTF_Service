@@ -11,14 +11,16 @@ resp = Response()
 def index():
     if request.method == 'POST':
         user_money = SQL.db_get_money(session.get('username'))
-        if user_money >= int(request.form.get('price')):
-            SQL.db_change_user_money(session.get('username'), user_money - int(request.form.get('price')))
-            session['money'] = user_money-int(request.form.get('price'))
-            return render_template('index.html')
+        count = SQL.db_get_product(request.form.get('id'))[3]
+        if user_money >= int(count):
+            SQL.db_change_user_money(session.get('username'), user_money - int(count))
+            session['money'] = user_money-int(count)
+            return render_template('index.html', products=SQL.db_get_all_elements('products'))
         else:
-            return render_template('index.html', err="This item is too expensive for you!")
+            return render_template('index.html', err="This item is too expensive for you!",
+                                   products=SQL.db_get_all_elements('products'))
     else:
-        return render_template('index.html')
+        return render_template('index.html', products=SQL.db_get_all_elements('products'))
 
 
 @app.route('/about')

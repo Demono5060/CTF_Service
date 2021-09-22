@@ -17,48 +17,22 @@
 {% block body %}
 <main>
     <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
+      {%for id, description, img, value in products%}
       <div class="col">
         <div class="card mb-4 rounded-3 shadow-sm">
           <div class="card-header py-3">
-            <h4 class="my-0 fw-normal">Morpheus</h4>
+            <h4 class="my-0 fw-normal">{{description}}</h4>
           </div>
           <div class="card-body">
-            <img src="{{url_for('static', filename='morpheus.jpg')}}" width="356" height="256" >
-            <h1 class="card-title pricing-card-title">300$</h1>
+            <img src="{{img}}">
+            <h1 class="card-title pricing-card-title">{{value}}$</h1>
             <form method="post">
-            <button type="submit" name="price" value="1000" class="w-100 btn btn-lg btn-outline-primary">Buy</button>
+            <button type="submit" name="id" value="{{id}}" class="w-100 btn btn-lg btn-outline-primary">Buy</button>
             </form>
           </div>
         </div>
       </div>
-      <div class="col">
-        <div class="card mb-4 rounded-3 shadow-sm">
-          <div class="card-header py-3">
-            <h4 class="my-0 fw-normal">Triniti</h4>
-          </div>
-          <div class="card-body">
-            <img src="{{url_for('static', filename='triniti.jpg')}}" width="156" height="256" >
-            <h1 class="card-title pricing-card-title">270$</h1>
-            <form method="post">
-            <button type="submit" name="price" value="1000" class="w-100 btn btn-lg btn-outline-primary">Buy</button>
-            </form>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card mb-4 rounded-3 shadow-sm">
-          <div class="card-header py-3">
-            <h4 class="my-0 fw-normal">Neo</h4>
-          </div>
-          <div class="card-body">
-            <img src="{{url_for('static', filename='neo.jpg')}}" width="128" height="256" >
-            <h1 class="card-title pricing-card-title">310$</h1>
-            <form method="post">
-            <button type="submit" name="price" value="1000" class="w-100 btn btn-lg btn-outline-primary">Buy</button>
-            </form>
-          </div>
-        </div>
-      </div>
+      {%endfor%}
     </div>
   </main>
 {% endblock %}
