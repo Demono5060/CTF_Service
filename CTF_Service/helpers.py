@@ -19,3 +19,11 @@ def login(username, password, remember):
 
 def gen_new_key(value):
     SQL.db_add_key(urandom(32), value)
+
+
+def get_table_column_names(table_name):
+    columns = SQL.db_get_table_columns(table_name)
+    names = []
+    for column in columns:
+        names.append(column[0])
+    return names

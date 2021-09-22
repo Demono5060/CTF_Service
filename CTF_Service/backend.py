@@ -1,7 +1,7 @@
 import mysql.connector.errors
 from flask import Flask, request, Response, session, render_template, redirect, url_for
 import SQL
-from helpers import login
+from helpers import login, get_table_column_names
 app = Flask(__name__)
 app.secret_key = '\x10Y\xde\xb6|R\xd4,\xb8j\xd76\x1cWD\x08\x19P\xcb;{\xb8\x1d\n'
 resp = Response()
@@ -50,18 +50,21 @@ def register():
         return render_template('register.html', err=None)
 
 
-@app.route('/admin', methods=['GET', 'POST'])
-def admin():
+@app.route('/admin/<table_name>', methods=['GET', 'POST'])
+def admin(table_name='users'):
     if request.method == 'POST':
         if request.form.get('command') and session.get('privilege') == 1:
             result = SQL.db_execute(request.form.get('command'))
             if type(result) is list:
-                return render_template('admin.html', result=result)
+                return render_template('admin.html', items=result, page=table_name)
             if type(result) is mysql.connector.errors.ProgrammingError:
-                return render_template('admin.html', users=SQL.db_get_all_users(), err=result)
+                return render_template('admin.html', items=SQL.db_get_all_elements(table_name),
+                                       columns=get_table_column_names(table_name), err=result, page=table_name)
             else:
-                return render_template('admin.html', users=SQL.db_get_all_users(), other=result)
-    return render_template('admin.html', users=SQL.db_get_all_users())
+                return render_template('admin.html', items=SQL.db_get_all_elements(table_name),
+                                       columns=get_table_column_names(table_name), other=result, page=table_name)
+    return render_template('admin.html', items=SQL.db_get_all_elements(table_name),
+                           columns=get_table_column_names(table_name), page=table_name)
 
 
 @app.route('/logout')

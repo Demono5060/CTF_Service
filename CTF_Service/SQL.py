@@ -130,11 +130,11 @@ def db_change_user_money(username, money):
         print(e)
 
 
-def db_get_all_users():
+def db_get_all_elements(table_name):
     try:
         find = """
-            SELECT * FROM users
-            """
+            SELECT * FROM {}
+            """.format(table_name)
         with shop_db.cursor() as cursor:
             cursor.execute(find)
             return cursor.fetchall()
@@ -175,5 +175,18 @@ def db_remove_key(key):
         with shop_db.cursor() as cursor:
             cursor.execute(remove, {'key': key})
             shop_db.commit()
+    except Error as e:
+        print(e)
+
+
+def db_get_table_columns(table_name):
+    try:
+        get_columns = """
+        SHOW COLUMNS FROM {}
+        """.format(table_name)
+        with shop_db.cursor() as cursor:
+            cursor.execute(get_columns)
+            res = cursor.fetchall()
+            return res
     except Error as e:
         print(e)
