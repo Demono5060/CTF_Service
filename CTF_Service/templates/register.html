@@ -9,20 +9,18 @@
 
 {%block form%}
     <div class="form-floating">
-      <input type="username" class="form-control" pattern="[a-zA-Z_\-0-9]{3,16}" id="floatingInput" name="username" placeholder="Username" required>
-      <label for="floatingInput">Nickname</label>
-        <div class="invalid-feedback">Please choose a username.</div>
-
+      <input type="username" class="form-control" pattern="[a-zA-Z_\-0-9]{3,16}" id="username" name="username" title="Username length minimum 3 maximum 16" placeholder="Username" required>
+      <label for="username">Nickname</label>
     </div>
 
     <div class="form-floating">
-      <input type="password" class="form-control" pattern="[a-zA-Z_\-0-9]{3,32}" id="floatingPassword" name="password" placeholder="Password">
-      <label for="floatingPassword">Password</label>
+      <input type="password" class="form-control" pattern="[a-zA-Z_\-0-9]{3,32}" id="password" title="Password length minimum 3 maximum 32" name="password" placeholder="Password">
+      <label for="password">Password</label>
     </div>
 
     <div class="form-floating">
-      <input type="password" class="form-control" id="floatingConfirmPassword" name="cpassword" placeholder="Confirm password">
-      <label for="floatingPassword">Confirm password</label>
+      <input type="password" class="form-control" id="cpassword" name="cpassword" placeholder="Confirm password">
+      <label for="cpassword">Confirm password</label>
     </div>
 
     <div class="checkbox mb-3">

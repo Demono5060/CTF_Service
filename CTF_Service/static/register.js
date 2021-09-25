@@ -1,0 +1,2 @@
+$('username').tooltip();
+$('password').tooltip();
