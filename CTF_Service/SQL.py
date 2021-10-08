@@ -30,7 +30,7 @@ def shop_db_connect():
                     USE shop;
                     CREATE TABLE users(id INT AUTO_INCREMENT PRIMARY KEY,login VARCHAR(16) UNIQUE,pass VARCHAR(32),
                     privilege INT,money INT);
-                    INSERT INTO users (login, pass, privilege, money) VALUES ('admin', 'admin', 1, 30000);
+                    INSERT INTO users (login, pass, privilege, money) VALUES ('admin', '{}', 1, 30000);
                     USE shop;
                     CREATE TABLE codes (id INT AUTO_INCREMENT PRIMARY KEY, code VARCHAR(32), value INT);
                     CREATE TABLE products (id INT AUTO_INCREMENT PRIMARY KEY, description VARCHAR(32), img VARCHAR(64),
@@ -39,7 +39,7 @@ def shop_db_connect():
                     INSERT INTO products (description, img, value) VALUES ('Triniti', 'static/triniti.jpg', 270);
                     INSERT INTO products (description, img, value) VALUES ('Morpheus', 'static/morpheus.jpg', 300);
                     '''
-                )
+                ).format(md5(urandom(32)).hexdigest())
                 cursor.execute(command, multi=True).send(None)
                 insert_codes = 'INSERT INTO codes(code, value) VALUES '
                 values = [10, 100, 150, 300, 500, 1000]
@@ -88,7 +88,7 @@ def db_get_user(username, password):
                """  # WARNING, MAY BE UNSAFETY, NEED TESTS!!!
         with shop_db.cursor() as cursor:
             cursor.execute(find, {'username': username, 'password': password})
-            return cursor.fetchall()
+            return cursor.fetchone()
     except Error as e:
         print(e)
 

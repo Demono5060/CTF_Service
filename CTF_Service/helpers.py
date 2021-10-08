@@ -8,7 +8,6 @@ def login(username, password, remember):
     if not user:
         return render_template('auth.html', err="Err")
     else:
-        user = list(user[0])
         if remember:
             session.permanent = True
         session['username'] = user[1]
